@@ -1,0 +1,26 @@
+.tabs li {
+	display: inline-block;
+}
+
+.tabs li:not(:last-child) {
+	margin-right: 0.5em;
+}
+
+.tabs button {
+	padding: 0.25em 0.5em;
+	color: hsl(0, 0%, 50%);
+	font-weight: bold;
+	border: 1px solid hsl(0, 0%, 30%);
+	background-image: linear-gradient(to bottom, hsl(0, 0%, 10%), hsl(0, 0%, 0%));
+	border-bottom-width: 0;
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.tabs li.active button {
+	color: white;
+	border-color: hsl(200, 100%, 25%);
+	background-image: linear-gradient(to bottom, hsl(200, 100%, 25%), hsl(200, 100%, 10%));
+}

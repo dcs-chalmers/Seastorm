@@ -1,0 +1,176 @@
+<!doctype html>
+<html data-ng-app="visualizer" data-ng-controller="Controller">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Seastorm Visualizer</title>
+		<link rel="icon" type="image/png" href="/css/icon.png">
+		
+		<!-- Libraries -->
+		<script src="../libraries/underscore.js"></script>
+		
+		<!-- Seastorm module -->
+		<script>var seastorm = {};</script>
+		
+		<!-- General-purpose -->
+		<script src="../LineBetween.js"></script>
+		
+		<!-- Seastorm-specific -->
+		<script src="../trace.js"></script>
+		
+		<!-- Angular-specific -->
+		<script src="../libraries/angular.js"></script>
+		<script src="../directives/FileButton.js"></script>
+		<script src="../directives/LineFor.js"></script>
+		<script src="../directives/StopClickPropagation.js"></script>
+		<script src="visualizer.js"></script>
+		
+		<link rel="stylesheet" href="../css/defaults.css">
+		<link rel="stylesheet" href="../css/font-awesome.css">
+		<link rel="stylesheet" href="css/layout.css">
+		<link rel="stylesheet" href="css/alignment.css">
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+	<body>
+		<header>
+			<seastorm-file-button
+				data-ng-model="traceFile"
+				data-ng-change="visualizeFile(traceFile)">Open File</seastorm-file-button>
+			<button
+				data-ng-disabled="!trace"
+				data-ng-click="saveTrace()">Save File</seastorm-file-button>
+			<button
+				type="button"
+				data-ng-show="windowIsAttached"
+				data-ng-click="detachWindow()">Open in New Window</button>
+		</header>
+		<main>
+			<section data-ng-show="data" class="detail-section">
+				<section class="summary-section">
+					<h2>Events</h2>
+					<table class="summary regular">
+						<thead>
+							<tr>
+								<th></th>
+								<th>Vessel</th>
+								<th>Title</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr
+								data-ng-repeat="event in data.events"
+								tabindex="0"
+								class="event"
+								data-ng-class="{
+									selected: eventIsSelected(event),
+									focus: eventHasFocus(event),
+									error: eventHasError(event)
+								}"
+								data-ng-mouseover="focus.event = event"
+								data-ng-mouseout="focus.event = null"
+								data-ng-focus="focus.event = event"
+								data-ng-blur="focus.event = null"
+								data-ng-click="selected.event = event">
+								<td>{{event.time}}</td>
+								<td>{{event.process.name}}</td>
+								<td>{{event.title}}</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+				<section class="event-section">
+					<h2>Selected Event</h2>
+					<table class="event-detail regular">
+						<colgroup>
+							<col>
+							<col>
+							<col>
+						</colgroup>
+						<thead>
+							<tr>
+								<th></th>
+								<th>Vessel</th>
+								<th>Title</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="event">
+								<td>{{selected.event.time}}</td>
+								<td>{{selected.event.process.name}}</td>
+								<td>{{selected.event.title}}</td>
+							</tr>
+						</tbody>
+					</table>
+					<pre class="log">{{selected.event.data}}</pre>
+				</section>
+			</section>
+			<section data-ng-show="data" class="timeline-section" data-ng-click="selected.event = null">
+				<header>
+					<h2>Diagram</h2>
+				</header>
+				<article>
+					<table class="timeline">
+						<thead>
+							<tr class="processes">
+								<th data-ng-repeat="process in data.processes" class="process-slot">
+									<div class="process">{{process.name}}</div>
+								</th>
+							</tr>
+						</thead>
+						<tbody data-ng-style="{ fontSize: zoom + 'px' }">
+							<tr data-ng-repeat="event in data.events" class="timestep">
+								<td data-ng-repeat="process in data.processes" class="event-slot" id="event-slot-{{$index}}-{{event.number}}">
+									<div
+										data-ng-if="event.process === process"
+										tabindex="0"
+										class="event"
+										id="event-{{event.number}}"
+										data-seastorm-line-for="event"
+										data-ng-class="{
+											selected: eventIsSelected(event),
+											focus: eventHasFocus(event),
+											error: eventHasError(event)
+										}"
+										data-ng-mouseover="focus.event = event"
+										data-ng-mouseout="focus.event = null"
+										data-ng-focus="focus.event = event"
+										data-ng-blur="focus.event = null"
+										data-ng-click="selected.event = event"
+										data-seastorm-stop-click-propagation>
+										<span class="event-title">{{event.title}}</span>
+										<!-- Event arrow will be inserted here, if there is one. -->
+									</div>
+								</td>
+							</tr>
+							<tr class="timestep">
+								<td data-ng-repeat="process in data.processes" class="event-slot"></td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="zoom">
+						<button
+							type="button"
+							class="zoom-in"
+							data-ng-click="zoomIn()"
+							data-seastorm-stop-click-propagation></button>
+						<input
+							id="zoom"
+							class="zoom-slider"
+							type="range"
+							min="{{minZoom}}"
+							max="{{maxZoom}}"
+							orient="vertical"
+							data-ng-model="zoom"
+							data-ng-change="updateArrows()"
+							data-seastorm-stop-click-propagation>
+						<button
+							type="button"
+							class="zoom-out"
+							data-ng-click="zoomOut()"
+							data-seastorm-stop-click-propagation></button>
+					</div>
+				</article>
+			</section>
+		</main>
+	</body>
+</html>

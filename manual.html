@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Seastorm Manual</title>
+	</head>
+	<body>
+		<h1>Seastorm Manual</h1>
+		
+		<p>Seastorm is a visualizer for Seattle that allows you to inspect the behavior of your programs with the help of an interactive sequence diagram.</p>
+		
+		<h2>Vessels</h2>
+		
+		<p>The <strong>Vessels</strong> section lists the vessels that you have acquired through the <a href="https://seattleclearinghouse.poly.edu/">Seattle Clearinghouse website</a>. For each vessel, you can configure the following:</p>
+		
+		<ul>
+			<li><strong>Use:</strong> If you disable this checkbox, the vessel will not take part in the experiments that you start.</li>
+			<li><strong>Title:</strong> This will be displayed in the sequence diagram to make the vessel easier to identify.</li>
+			<li><strong>File:</strong> This is the file that the vessel will run when you start an experiment.</li>
+			<li><strong>Arguments:</strong> These are the arguments that will be passed to the vessel's file when you start an experiment.</li>
+		</ul>
+
+		<p>Below the vessels are three buttons:</p>
+
+		<ul>
+			<li><strong>Start Vessels:</strong> Uploads all files to every vessel, then for each vessel starts the specified file with the specified arguments. The visualization will appear in the <strong>Diagram</strong> section and be updated every few seconds.</li>
+			<li><strong>Stop Vessels:</strong> Stops all vessels and updates the visualization with the final result.</li>
+			<li><strong>Reset Vessels:</strong> Stops all vessels and removes all files on them. This is only necessary if some vessel can no longer be used due to errors; by default, multiple experiments can be run without resetting the vessels between them.</li>
+		</ul>
+		
+		<h2>Files</h2>
+		
+		<p>The <strong>Files</strong> section lists the files that are available to you. If you have set Seastorm to watch a directory on the local filesystem for changes, it lists the file names as well as the time that they most recently changed. Otherwise, it provides a text editor for each file as well as the ability to add, delete, and rename files.</p>
+
+		<h2>Diagram</h2>
+		
+		<p>The <strong>Diagram</strong> section visualizes the execution of your experiment as a sequence diagram where each box represents an event and each arrow represents a message.</p>
+		
+		<p>The following shapes are used in the diagram:</p>
+
+		<ul>
+			<li><strong>Arrow:</strong> A message sent between two vessels.</li>
+			<li><strong>Crossed-out arrow:</strong> A message sent between two vessels that was either lost on the network or ignored by the recipient.</li>
+			<li><strong>Box without arrow:</strong> A logging event created by a call to the <code>log()</code> function.</li>
+		</ul>
+
+		<p>By hovering over a box or an arrow, you can see when the message related to that box or arrow was sent and received.</p>
+	</body>
+</html>	

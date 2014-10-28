@@ -1,0 +1,80 @@
+html, body {
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+}
+
+main {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	flex: 1;
+	overflow: auto;
+}
+
+main > div {
+	overflow: auto;
+}
+
+.loading, .login, .instructions {
+	align-self: center;
+}
+
+.monitor {
+	flex: 1;
+	flex-basis: 50%;
+	display: flex;
+	flex-direction: column;
+}
+
+.visualizer {
+	flex: 1;
+	flex-basis: 50%;
+}
+
+.visualizer {
+	display: flex;
+	flex-direction: column;
+}
+
+.visualizer iframe {
+	flex: 1;
+}
+
+/* Monitor */
+
+.monitor #vessels form {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.monitor #vessels form section {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.monitor #vessels table {
+	width: 100%;
+}
+
+.monitor textarea {
+	flex: 1;
+	display: block;
+}
+
+#files,
+#files .internal-files,
+#files .external-files,
+#files .file,
+#files .editor {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}

@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+		<title>Unit Tests</title>
+		<link rel="stylesheet" href="mocha/mocha.css">
+	</head>
+	<body>
+		<div id="mocha"></div>
+		
+		<script src="expect/index.js"></script>
+		<script src="mocha/mocha.js"></script>
+		
+		<script src="../libraries/underscore.js"></script>
+		
+		<script>var seastorm = {};</script>
+		<script src="../LineBetween.js"></script>
+		<script src="../seattle.js"></script>
+		<script src="../trace.js"></script>
+		<script src="../xmlRpcSerialize.js"></script>
+		<script src="../xmlRpcParse.js"></script>
+		
+		<script>
+			mocha.setup('tdd');
+		</script>
+		
+		<!-- Replace single `done` callback with `pass` and `fail` callbacks. -->
+		<script>
+			(function() {
+				var originalTestFunction = test;
+				test = function(title, passFailTestInstance) {
+					if ( passFailTestInstance.length === 0 ) {
+						originalTestFunction(title, passFailTestInstance);
+					} else {
+						var doneTestInstance = function(done) {
+							var pass = function() {
+								done();
+							};
+							var fail = function(error) {
+								if ( !error ) {
+									error = 'Unspecified error';
+								}
+								done(error);
+							};
+							passFailTestInstance(pass, fail);
+						};
+						originalTestFunction(title, doneTestInstance);
+					}
+				};
+			})();
+		</script>
+		
+		<script src="LineBetween.spec.js"></script>
+		<script src="parseVesselStatus.spec.js"></script>
+		<script src="trace.spec.js"></script>
+		<script src="xmlRpcSerialize.spec.js"></script>
+		<script src="xmlRpcParse.spec.js"></script>
+		
+		<script>
+			mocha.checkLeaks();
+			mocha.run();
+		</script>
+	</body>
+</html>

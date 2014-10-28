@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Seattle Seastorm</title>
+		<link rel="icon" type="image/png" href="/css/icon.png">
+		
+		<!-- Libraries -->
+		<script src="libraries/promise-0.1.1.js"></script>
+		<script src="libraries/underscore.js"></script>
+		<script src="libraries/ace/src/ace.js"></script>
+		
+		<!-- Seastorm module -->
+		<script>var seastorm = {};</script>
+		
+		<!-- General-purpose -->
+		<script src="functional.js"></script>
+		<script src="ExternalFilesystem.js"></script>
+		<script src="Request.js"></script>
+		<script src="XmlRpcClient.js"></script>
+		<script src="xmlRpcParse.js"></script>
+		<script src="xmlRpcSerialize.js"></script>
+		
+		<!-- Seastorm-specific -->
+		<script src="clearinghouse.js"></script>
+		<script src="monitor.js"></script>
+		<script src="seattle.js"></script>
+		<script src="trace.js"></script>
+		
+		<!-- Angular-specific -->
+		<script src="libraries/angular.js"></script>
+		<script src="directives/Editor.js"></script>
+		<script src="directives/ProcessButton.js"></script>
+		<script src="directives/TextButton.js"></script>
+		<script src="controllers/AppController.js"></script>
+		<script src="controllers/AuthController.js"></script>
+		<script src="controllers/FileController.js"></script>
+		<script src="controllers/ProgramController.js"></script>
+		<script src="bootstrap.js"></script>
+		
+		<!-- <link rel="stylesheet" href="css/debug.css"> -->
+		<link rel="stylesheet" href="css/defaults.css">
+		<link rel="stylesheet" href="css/layout.css">
+		<link rel="stylesheet" href="css/alignment.css">
+		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="css/patterns.css">
+		<link rel="stylesheet" href="css/font-awesome.css">
+	</head>
+	<body data-ng-app="seastorm" data-ng-controller="AppController">
+		<header>
+			<h1>Seattle Seastorm</h1>
+			<p><a href="manual.html" target="_blank">Help</a></p>
+		</header>
+		<main>
+			<div class="loading" data-ng-show="model.loading">
+				<section>
+					<p>Loading…</p>
+				</section>
+			</div>
+			<div class="instructions" data-ng-show="!model.loading && !model.serverOnline">
+				<section>
+					<h2>Instructions</h2>
+					<ol>
+						<li>Download and extract <a href="https://pingpong.chalmers.se/courseId/4065/node.do?id=2045531">seastorm.zip</a>.</li>
+						<li>
+							Open a terminal and run: <code>python <var>seastorm_dir</var> <var>key_path</var> <var>[file_dir]</var></code>.
+							<ul>
+								<li><code><var>seastorm_dir</var></code> is the directory to which you extracted <a href="https://pingpong.chalmers.se/courseId/4065/node.do?id=2045531">seastorm.zip</a>.</li>
+								<li><code><var>key_path</var></code> is the path to your public and private key files.</li>
+								<li><code><var>file_dir</var></code> is the directory containing your Repy programs, if you do not want to use the in-browser editor <em>(optional)</em>.</li>
+							</ul>
+						</li>
+						<li>Wait for the page to automatically reload.</li>
+						<li>Enter your Seattle username and API key into the login form that appears.</li>
+					</ol>
+					<h3>Example</h3>
+					<ul>
+						<li><a href="https://pingpong.chalmers.se/courseId/4065/node.do?id=2045531">seastorm.zip</a> directory: <code>/example/seastorm</code></li>
+						<li>Key files: <code>/example/keys/test.publickey</code> and <code>/example/keys/test.privatekey</code></li>
+						<li>Command to run: <code>python /example/seastorm /example/keys/test</code></li>
+					</ul>
+				</section>
+			</div>
+			<div class="login" data-ng-show="model.serverOnline && !model.login.successful" data-ng-controller="AuthController">
+				<section>
+					<h2>Sign In</h2>
+					<form>
+						<table class="regular horizontal">
+							<tbody>
+								<tr>
+									<th>Username</th>
+									<td><input type="text" data-ng-model="model.credentials.username"></td>
+								</tr>
+								<tr>
+									<th>API key</th>
+									<td><input type="password" data-ng-model="model.credentials.apiKey"></td>
+								</tr>
+							</tbody>
+						</table>
+						<p class="hint">Your username and API key are available in the <a href="https://seattleclearinghouse.poly.edu/" target="_blank">Seattle Clearinghouse</a>.</p>
+						<p class="actions">
+							<seastorm-process-button
+								data-process="login"
+								data-busy="model.login.inProgress"
+								data-disabled="model.login.successful"
+								data-submit>Sign In</seastorm-process-button>
+						</p>
+					</form>
+				</section>
+			</div>
+			<div class="monitor" data-ng-show="model.login.successful" data-ng-controller="ProgramController">
+				<section id="vessels">
+					<h2>Vessels</h2>
+					<table class="regular" data-ng-show="model.programs.length > 0">
+						<colgroup>
+							<col style="width: 5%">
+							<col style="width: 10%">
+							<col style="width: 17.5%">
+							<col style="width: 17.5%">
+							<col style="width: 40%">
+							<col style="width: 10%">
+						</colgroup>
+						<thead>
+							<tr>
+								<th class="active">Use</th>
+								<th>IP</th>
+								<th>Title</th>
+								<th>File</th>
+								<th>Arguments</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr data-ng-repeat="program in model.programs" data-ng-class="{ inactive: !program.isActive }">
+								<td class="active"><input type="checkbox" data-ng-model="program.isActive"></td>
+								<td>{{program.vessel.ip}}</td>
+								<td><input type="text" data-ng-model="program.title"></td>
+								<td>
+									<select data-ng-options="file.name for file in model.files" data-ng-model="program.file">
+										<option></option>
+									</select>
+								</td>
+								<td class="args"><input type="text" data-ng-model="program.args" class="code" placeholder="arguments"></td>
+								<td class="status">{{program.status}}</td>
+							</tr>
+						</tbody>
+					</table>
+					<form method="post" data-ng-show="model.programs.length > 0">
+						<p class="actions">
+							<seastorm-process-button
+								data-process="start"
+								data-busy="model.processIsStarting"
+								data-disabled="model.monitorIsRunning">Start Vessels</seastorm-process-button>
+							<seastorm-process-button
+								data-process="stop"
+								data-busy="model.processIsStarting"
+								data-disabled="!model.monitorIsRunning">Stop Vessels</seastorm-process-button>
+							<seastorm-process-button
+								data-process="reset"
+								data-busy="model.processIsStarting"
+								data-disabled="model.monitorIsRunning">Reset Vessels</seastorm-process-button>
+						</p>
+						<progress
+							data-ng-if="model.progress != null"
+							value="{{model.progress}}"
+							max="1">{{model.progress}}</progress>
+						<p class="error" data-ng-show="model.error">
+							<span>{{model.error}}</span>
+							<button type="button" data-ng-click="model.error = null">Close</button>
+						</p>
+					</form>
+					<p data-ng-show="model.programs.length == 0" class="no-vessels">You have no vessels. Acquire vessels at the <a href="https://seattleclearinghouse.poly.edu/html/myvessels" target="_blank">Seattle Clearinghouse</a>, then reload this page.</p>
+				</section>
+				<section id="files" data-ng-controller="FileController">
+					<h2>Files</h2>
+					<section data-ng-if="!model.filesystemEventSource" class="internal-files">
+						<menu class="tabs">
+							<li data-ng-repeat="file in model.files" data-ng-class="{ active: file == selectedFile }">
+								<button data-ng-click="selectFile(file)">{{file.name}}</button>
+							</li><!--
+							--><li class="create-file">
+								<button data-ng-click="addFile()">New File</button>
+							</li>
+						</menu>
+						<section
+							class="file"
+							data-ng-repeat="file in model.files"
+							data-ng-show="file == selectedFile">
+							<section class="actions">
+								<seastorm-text-button
+									data-ng-model="file.name"
+									data-seastorm-active="file.isBeingRenamed"
+									class="rename">Rename File</seastorm-text-button>
+								<button
+									type="button"
+									data-ng-click="removeFile(file)"
+									class="delete">Delete File</button>
+							</section>
+							<seastorm-editor data-ng-model="file.contents"></seastorm-editor>
+						</section>
+					</section>
+					<section data-ng-if="model.filesystemEventSource" class="external-files">
+						<table class="regular">
+							<thead>
+								<tr>
+									<th>Filename</th>
+									<th>Last Modified</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="file in model.files | orderBy:'name'">
+									<td>{{file.name}}</td>
+									<td>{{file.date | date:'HH:mm:ss'}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</section>
+				</section>
+			</div>
+			<div class="visualizer" data-ng-show="model.login.successful && visualizerIsAttached">
+				<iframe src="visualizer/index.html" id="visualizer-frame"></iframe>
+			</div>
+		</main>
+	</body>
+</html>

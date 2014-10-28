@@ -1,0 +1,310 @@
+# This file is part of Seastorm
+# Copyright 2014 Jakob Kallin
+
+def seastorm_base64(s):
+  base64_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+  # Change from characters to integers for binary operations.
+  bytes = []
+  for x in s:
+    bytes.append(ord(x))
+
+  # Encode the 8-bit words into 6-bit words.
+  x6bit_words = []
+  index = 0
+  while True:
+
+    # Encode the first 6 bits from three 8-bit values.
+    try:
+      x8bits = bytes[index]
+    except IndexError:
+      break
+    else:
+      x6bits = x8bits >> 2
+      leftover_bits = x8bits & 3
+      x6bit_words.append(base64_alphabet[x6bits])
+
+    # Encode the next 8 bits.
+    try:
+      x8bits = bytes[index + 1]
+    except IndexError:
+      x6bits = leftover_bits << 4
+      x6bit_words.extend([base64_alphabet[x6bits], "=="])
+      break
+    else:
+      x6bits = (leftover_bits << 4) | (x8bits >> 4)
+      leftover_bits = x8bits & 15
+      x6bit_words.append(base64_alphabet[x6bits])
+
+    # Encode the final 8 bits.
+    try:
+      x8bits = bytes[index + 2]
+    except IndexError:
+      x6bits = leftover_bits << 2
+      x6bit_words.extend([base64_alphabet[x6bits], "="])
+      break
+    else:
+      x6bits = (leftover_bits << 2) | (x8bits >> 6)
+      x6bit_words.append(base64_alphabet[x6bits])
+      x6bits = x8bits & 63
+      x6bit_words.append(base64_alphabet[x6bits])
+
+    index += 3
+
+  return "".join(x6bit_words)
+
+def increase_seastorm_clock():
+  mycontext['seastorm_clock_lock'].acquire(True)
+  mycontext['seastorm_clock'] += 1
+  # Save copy of clock to avoid other threads altering.
+  clock = mycontext['seastorm_clock']
+  mycontext['seastorm_clock_lock'].release()
+  
+  return clock
+
+def adjust_seastorm_clock(other_clock):
+  mycontext['seastorm_clock_lock'].acquire(True)
+  mycontext['seastorm_clock'] = max(mycontext['seastorm_clock'], other_clock) + 1
+  # Save copy of clock to avoid other threads altering.
+  clock = mycontext['seastorm_clock']
+  mycontext['seastorm_clock_lock'].release()
+  
+  return clock
+
+def add_seastorm_send_entry(departure, recipient, payload, title=None):
+  if title is None:
+    line = ','.join(['send', str(departure), recipient, seastorm_base64(payload)])
+  else:
+    line = ','.join(['send', str(departure), recipient, seastorm_base64(title), seastorm_base64(payload)])
+  add_seastorm_log_line(line)
+
+def add_seastorm_receive_entry(arrival, departure, sender, payload, title=None):
+  if title is None:
+    line = ','.join(['receive', str(arrival), str(departure), sender, seastorm_base64(payload)])
+  else:
+    line = ','.join(['receive', str(arrival), str(departure), sender, seastorm_base64(title), seastorm_base64(payload)])
+  add_seastorm_log_line(line)
+
+def add_seastorm_log_entry(time, title, content):
+  if title is None:
+    line = ','.join(['log', str(time), seastorm_base64(content)])
+  else:
+    line = ','.join(['log', str(time), seastorm_base64(title), seastorm_base64(content)])
+  add_seastorm_log_line(line)
+
+def add_seastorm_log_line(line):
+  mycontext['seastorm_log_lock'].acquire()
+  log = open('seastorm.log', 'a')
+  log.write(line + '\n')
+  log.close()
+  mycontext['seastorm_log_lock'].release()
+
+repy_sendmess = sendmess
+def sendmess(other_ip, other_port, payload, this_ip, this_port, title=None):
+  if other_ip not in mycontext['seastorm_vessels']:
+    return repy_sendmess(other_ip, other_port, payload, this_ip, this_port)
+
+  # Adjust the Lamport clock.
+  departure = increase_seastorm_clock()
+  
+  # Add departure metadata to the message, needed for adjusting the recipient's
+  # Lamport clock.
+  metadata = str(departure).zfill(4)
+  wrapped_message = metadata + payload
+  
+  # Send the message with added metadata.
+  bytes_sent = repy_sendmess(other_ip, other_port, wrapped_message, this_ip, this_port)
+  # Calculate the number of actual payload bytes sent. If not even the metadata
+  # is successfully sent, this number should be 0, so make sure that a negative
+  # number is not returned.
+  payload_bytes_sent = max(bytes_sent - len(metadata), 0)
+  
+  # Create a log entry for the sent message.
+  if payload_bytes_sent > 0:
+    add_seastorm_send_entry(
+      departure=departure,
+      recipient=other_ip,
+      payload=payload,
+      title=title
+    )
+  
+  return payload_bytes_sent
+
+repy_recvmess = recvmess
+def recvmess(this_ip, this_port, user_callback):
+  def message_received(other_ip, other_port, message, commhandle):
+    if other_ip in mycontext['seastorm_vessels']:
+      # Parse the data from the received message.
+      departure = int(message[:4])
+      payload = message[4:]
+      
+      # Adjust the Lamport clock.
+      arrival = adjust_seastorm_clock(departure)
+      
+      # Create a log entry for the received message.
+      add_seastorm_receive_entry(
+        arrival=arrival,
+        departure=departure,
+        sender=other_ip,
+        payload=payload
+      )
+      
+      # Run the user-provided callback after everything else, because it might
+      # contain calls to `sendmess` that will modify the clock.
+      user_callback(other_ip, other_port, payload, commhandle)
+    else:
+      user_callback(other_ip, other_port, message, commhandle)
+    
+  commhandle = repy_recvmess(this_ip, this_port, message_received)
+  return commhandle
+
+def log(*args, **kwargs):
+  if 'title' in kwargs:
+    title = kwargs['title']
+  else:
+    title = None
+  
+  # Adjust the Lamport clock.
+  time = increase_seastorm_clock()
+  add_seastorm_log_entry(
+    time=time,
+    title=title,
+    content=''.join(map(str, args))
+  )
+
+def adapt_socket_to_seastorm(socket, other_ip, other_port):
+  send_state = {
+    'buffer': '',
+    'departure': None
+  }
+  
+  recv_state = {
+    'buffer': '',
+    'departure': None,
+    'arrival': None
+  }
+  
+  def handle_remote_socket_close():
+    mycontext['seastorm_close_lock'].acquire()
+    if recv_state['departure'] is not None and recv_state['arrival'] is None:
+      # All of the data has been received, so adjust the Lamport clock.
+      recv_state['arrival'] = adjust_seastorm_clock(recv_state['departure'])
+      
+      add_seastorm_receive_entry(
+        arrival=recv_state['arrival'],
+        departure=recv_state['departure'],
+        sender=other_ip,
+        payload=recv_state['buffer']
+      )
+    mycontext['seastorm_close_lock'].release()
+  
+  class SeastormSocket:
+    def send(self, payload):
+      # If this is the first time sending, make sure to send the timestamp
+      # before sending anything else.
+      if send_state['departure'] is None:
+        departure = increase_seastorm_clock()
+        
+        # Add departure metadata to the message, needed for adjusting the
+        # recipient's Lamport clock.
+        metadata = str(departure) + ','
+        metadata_bytes = 0
+        while metadata_bytes < len(metadata):
+          metadata_bytes += socket.send(metadata[metadata_bytes:])
+        
+        send_state['departure'] = departure
+      
+      payload_bytes = socket.send(payload)
+      send_state['buffer'] += payload[:payload_bytes]
+      
+      return payload_bytes
+    
+    def recv(self, recv_bytes):
+      try:
+        if recv_state['departure'] is None:
+          # If we haven't received anything before, receive until we get the
+          # entire timestamp.
+          head = ''
+          while ',' not in head:
+            head += socket.recv(1)
+            
+          departure_str = head.split(',')[0]
+          departure = int(departure_str)
+          
+          recv_state['departure'] = departure
+        
+        payload = socket.recv(recv_bytes)
+        recv_state['buffer'] += payload
+
+        return payload
+      except Exception:
+        handle_remote_socket_close()
+        raise
+    
+    def close(self):
+      # If data has been sent, add a log entry for it.
+      if send_state['departure'] is not None:
+        add_seastorm_send_entry(
+          departure=send_state['departure'],
+          recipient=other_ip,
+          payload=send_state['buffer']
+        )
+      
+      # If data has been received, add a log entry for it.
+      handle_remote_socket_close()
+      
+      return socket.close()
+  
+  seastorm_socket = SeastormSocket()
+  return seastorm_socket
+
+repy_openconn = openconn
+def openconn(other_ip, other_port, this_ip=None, this_port=None, timeout=5):
+  socket = repy_openconn(other_ip, other_port, this_ip, this_port, timeout)
+
+  if other_ip in mycontext['seastorm_vessels']:
+    seastorm_socket = adapt_socket_to_seastorm(socket, other_ip, other_port)
+    return seastorm_socket
+  else:
+    return socket
+
+repy_waitforconn = waitforconn
+def waitforconn(this_ip, this_port, user_callback):
+  def seastorm_callback(other_ip, other_port, socket, commhandle, listenhandle):
+    if other_ip in mycontext['seastorm_vessels']:
+      seastorm_socket = adapt_socket_to_seastorm(socket, other_ip, other_port)
+      user_callback(other_ip, other_port, seastorm_socket, commhandle, listenhandle)
+    else:
+      user_callback(other_ip, other_port, socket, commhandle, listenhandle)
+  
+  return repy_waitforconn(this_ip, this_port, seastorm_callback)
+
+# Create a list of all vessels available to the user, so that we can avoid
+# logging messages from other nodes (which don't have departure metadata).
+def add_seastorm_vessels():
+  vessel_file = open('vessels')
+  vessel_lines = vessel_file.read().strip().split('\n')
+  mycontext['seastorm_vessels'] = []
+  for line in vessel_lines:
+    ip, port_str = line.split(':')
+    mycontext['seastorm_vessels'].append(ip)
+  vessel_file.close()
+
+if callfunc in ['initialize', 'import']:
+  add_seastorm_vessels()
+
+  # Create empty log.
+  if 'seastorm.log' in listdir():
+    removefile('seastorm.log')
+  open('seastorm.log', 'w').close()
+  
+  mycontext['seastorm_clock'] = 0
+  
+  # Only one thread writing to the log at any given time.
+  mycontext['seastorm_log_lock'] = getlock()
+  
+  # Only one thread modifying the clock at any given time.
+  mycontext['seastorm_clock_lock'] = getlock()
+  
+  # Only one thread handling remote socket closing at any given time.
+  mycontext['seastorm_close_lock'] = getlock()

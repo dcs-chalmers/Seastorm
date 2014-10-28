@@ -1,0 +1,109 @@
+html,
+body {
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+}
+
+main {
+	flex: 1;
+	overflow: auto;
+	display: flex;
+	flex-direction: row;
+}
+
+section {
+	overflow: auto;
+}
+
+.timeline-section {
+	order: 2;
+	flex: 2;
+}
+
+.detail-section {
+	order: 1;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.summary-section {
+	flex: 1;
+}
+
+.event-section {
+	flex: 1;
+}
+
+.event-section {
+	display: flex;
+	flex-direction: column;
+}
+
+.detail-section .log {
+	flex: 1;
+}
+
+/**/
+/* Timeline */
+/**/
+
+.timeline-section {
+	display: flex;
+	flex-direction: column;
+}
+
+.timeline-section article {
+	flex: 1;
+	display: flex;
+	flex-direction: row;
+}
+
+.timeline {
+	order: 2;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow: auto;
+}
+
+.zoom {
+	order: 1;
+	width: 2rem;
+	margin-right: 1rem;
+}
+
+.zoom-slider {
+	-webkit-appearance: slider-vertical;
+	width: 2rem;
+}
+
+/* Remove default table styling */
+.timeline thead,
+.timeline tbody,
+.timeline tr,
+.timeline th,
+.timeline td {
+	display: block;
+}
+
+.timeline tbody {
+	flex: 1;
+}
+
+.timeline .processes,
+.timeline .timestep {
+	display: flex;
+	flex-direction: row;
+}
+
+.timeline .process-slot,
+.timeline .event-slot {
+	flex: 1;
+}

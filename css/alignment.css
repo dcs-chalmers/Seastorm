@@ -1,0 +1,60 @@
+header p {
+	position: absolute;
+	top: 0.5rem;
+	right: 1rem;
+}
+
+/* Sign in */
+.login .actions {
+	margin-top: 1rem;
+	text-align: center;
+}
+
+.login .hint {
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+}
+
+.login input {
+	width: 100%;
+}
+
+/* Monitor */
+.monitor > section + section {
+	margin-top: 2rem;
+}
+
+#vessels th.active, #vessels td.active {
+	text-align: center;
+}
+
+#vessels .actions {
+	text-align: center;
+	margin-top: 1rem;
+}
+
+#vessels progress {
+	margin-top: 1rem;
+}
+
+.error {
+	padding: 0.25rem;
+	margin-top: 1rem;
+	text-align: center;
+}
+
+.error button {
+	float: right;
+}
+
+#internal-files section.file > section + section {
+	margin-top: 1rem;
+}
+
+.file .actions .delete {
+	float: right;
+}
+
+.editor {
+	margin-top: 1rem;
+}

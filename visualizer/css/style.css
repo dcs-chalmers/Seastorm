@@ -1,0 +1,219 @@
+html {
+	font-family: Corbel, sans-serif;
+	line-height: 1.5;
+	color: white;
+	background-color: hsl(0, 0%, 10%);
+}
+
+button, textarea, input:not([type="radio"]):not([type="checkbox"]) {
+	padding-left: 0.25rem;
+	padding-right: 0.25rem;
+}
+
+button {
+	font-weight: bold;
+}
+
+h2 {
+	text-align: center;
+	font-size: 1.5rem;
+}
+
+/* Vertical */
+/*section + section {
+	margin-top: 2rem;
+	}*/
+
+	/* Timeline */
+
+/* EMs (as opposed to REMs) are used below for a specific reason: easy scaling
+of all elements based on the font size of an ascendant, which is used when the
+user zooms in and out */
+
+.timeline {
+	text-align: center;
+}
+
+.process-slot,
+.event-slot {
+	background-image: linear-gradient(to bottom, black, black);
+	background-size: 0.5rem 100%;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.process,
+.event {
+	box-shadow: 0 0 1em black;
+}
+
+.process {
+	font-weight: bold;
+	background-image: linear-gradient(to bottom, hsl(0, 0%, 10%), hsl(0, 0%, 0%));
+	border: 1px solid hsl(0, 0%, 15%);
+}
+
+.timestep:last-child .event-slot {
+	background-image: linear-gradient(to bottom, hsl(0, 0%, 0%), hsla(0, 0%, 0%, 0));
+}
+
+/* Regular tables */
+
+table.regular {
+	width: 100%;
+	table-layout: fixed;
+	text-align: left;
+	background-color: black;
+}
+
+table.regular thead tr,
+table.regular.horizontal th {
+	background-image: linear-gradient(to bottom, hsl(0, 0%, 10%), hsl(0, 0%, 0%));
+	border: 1px solid hsl(0, 0%, 15%);
+	font-weight: bold;
+}
+
+table.regular tr:nth-child(even) {
+	background-image: linear-gradient(to bottom, hsl(0, 0%, 12.5%), hsl(0, 0%, 7.5%));
+}
+
+/* Message summary table */
+
+.detail-section th:first-child,
+.summary th:first-child {
+	text-align: center;
+}
+
+.summary th:first-child:before {
+	font-family: FontAwesome;
+	font-weight: normal;
+	content: "\f017";
+}
+
+/* Selected message table */
+
+.detail-section .log {
+	color: white;
+	background-color: black;
+	overflow: auto;
+}
+
+.detail-section th:first-child:before {
+	font-family: FontAwesome;
+	font-weight: normal;
+	content: "\f017";
+}
+
+/* Events and arrows */
+.event {
+	background-image: linear-gradient(to bottom, hsl(0, 0%, 20%), hsl(0, 0%, 15%));
+	border: 1px solid hsl(0, 0%, 30%);
+	position: relative; /* Place above arrows by default. */
+}
+
+.arrow,
+.arrowhead {
+	fill: hsl(0, 0%, 35%);
+	stroke: hsl(0, 0%, 35%);
+	stroke-width: 0.3125em;
+	stroke-linecap: square;
+}
+
+.cross {
+	stroke: hsl(0, 100%, 30%);
+	/* I'm not sure what unit this is, but unlike EMs it scales properly. */
+	stroke-width: 15;
+	stroke-linecap: square;
+}
+
+.event svg {
+	pointer-events: none;
+	-webkit-filter: drop-shadow(0.25em 0.25em 0.5em black);
+	-moz-filter: drop-shadow(0.25em 0.25em 0.5em black);
+	filter: drop-shadow(0.25em 0.25em 0.5em black);
+}
+
+.arrow {
+	pointer-events: auto;
+}
+
+.event.error .arrow,
+.event.error .arrowhead {
+	stroke: hsl(0, 0%, 20%);
+	fill: hsl(0, 0%, 20%);
+}
+
+/* Focus and selected */
+.event {
+	cursor: pointer;
+}
+
+.event.focus svg,
+.event.selected svg {
+	z-index: 1;
+}
+
+/* Focus */
+.event:focus {
+	outline: none;
+}
+
+.event.focus {
+	background-image: linear-gradient(to bottom, hsl(200, 50%, 25%), hsl(200, 50%, 10%));
+	border-color: hsl(200, 50%, 25%);
+}
+
+.event.focus .arrow,
+.event.focus .arrowhead {
+	stroke: hsl(200, 50%, 50%);
+	fill: hsl(200, 50%, 50%);
+}
+
+.event.focus {
+	background-image: linear-gradient(to bottom, hsl(200, 50%, 25%), hsl(200, 50%, 10%)) !important;
+	border-color: hsl(200, 50%, 25%);
+}
+
+/* Selected */
+.event.selected {
+	background-image: linear-gradient(to bottom, hsl(200, 100%, 25%), hsl(200, 100%, 10%)) !important;
+	border-color: hsl(200, 100%, 25%);
+}
+
+.event.selected .arrow,
+.event.selected .arrowhead {
+	stroke: hsl(200, 100%, 50%);
+	fill: hsl(200, 100%, 50%);
+}
+
+.event.focus.error,
+.event.selected.error {
+	background-image: linear-gradient(to bottom, hsl(0, 100%, 30%), hsl(0, 100%, 15%)) !important;
+	border: 1px solid hsl(0, 100%, 30%);
+}
+
+.event.focus .cross,
+.event.selected .cross {
+	stroke: hsl(0, 100%, 50%);
+	fill: hsl(0, 100%, 50%);
+}
+
+/* Zoom */
+.zoom-in, .zoom-out {
+	width: 100%;
+	text-align: center;
+}
+
+.zoom-in:before,
+.zoom-out:before {
+	font-family: FontAwesome;
+	font-weight: normal;
+}
+
+.zoom-in:before {
+	content: "\f00e";
+}
+
+.zoom-out:before {
+	content: "\f010";
+}

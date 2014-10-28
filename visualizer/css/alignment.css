@@ -1,0 +1,103 @@
+html {
+	padding: 2rem;
+}
+
+header button:last-child {
+	float: right;
+}
+
+header {
+	padding-bottom: 0.5rem;
+}
+
+.timeline-section {
+	padding-left: 1rem;
+}
+
+.detail-section {
+	padding-right: 1rem;
+}
+
+.summary-section {
+	margin-bottom: 1rem;
+}
+
+.detail-section .log {
+	padding: 0.5rem;
+}
+
+/* Summary */
+.detail-section tr > :nth-child(1),
+.summary-section tr > :nth-child(1) {
+	width: 15%;
+}
+
+.detail-section tr > td:nth-child(1),
+.summary-section tr > td:nth-child(1) {
+	text-align: right;
+}
+
+.detail-section tr > :nth-child(2),
+.summary-section tr > :nth-child(2) {
+	width: 30%;
+}
+
+.detail-section tr > :nth-child(3),
+.summary-section tr > :nth-child(3) {
+	width: 55%;
+}
+
+/* Timeline */
+
+.timeline {
+	overflow-x: hidden;
+}
+
+.timeline .process-slot,
+.timeline .event-slot {
+	margin-left: 2rem;
+	margin-right: 2rem;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+}
+
+.timeline .process-slot:first-child,
+.timeline .event-slot:first-child {
+	margin-left: 0;
+}
+
+.timeline .process-slot:last-child,
+.timeline .event-slot:last-child {
+	margin-right: 0;
+}
+
+.timeline .process-slot {
+	padding-top: 0;
+}
+
+.timeline .process,
+.timeline .event {
+	padding: 0.25em;
+}
+
+/* Fade out line */
+.timeline .timestep:last-child .event-slot {
+	padding-bottom: 2.5rem;
+}
+
+/* Regular tables */
+
+table.regular td,
+table.regular th {
+	padding-left: 0.5rem;
+	padding-right: 0.5rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Zoom */
+.zoom-slider {
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}

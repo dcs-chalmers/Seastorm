@@ -1,0 +1,180 @@
+html {
+	font-family: Corbel, sans-serif;
+	line-height: 1.5;
+	color: white;
+	text-align: left;
+}
+
+header {
+	padding: 0.5rem 1rem;
+	font-size: 1.5rem;
+	background-image: linear-gradient(to bottom, hsl(200, 100%, 25%), hsl(200, 100%, 10%));
+	border-bottom: 1px solid hsl(200, 100%, 25%);
+	box-shadow: 0 0.5rem 1rem hsla(0, 0%, 0%, 0.5);
+	z-index: 1; /* Make sure shadow displays. */
+}
+
+header a {
+	color: inherit;
+	font-size: 1rem;
+}
+
+main {
+	background-color: hsl(0, 0%, 10%);
+}
+
+main > div + div {
+	border-left: 1px solid hsl(0, 0%, 20%);
+}
+
+/* General elements */
+
+h2 {
+	text-align: center;
+	font-size: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 0.5rem;
+}
+
+/* Form elements */
+textarea {
+	width: 100%;
+}
+
+button, textarea, input:not([type="radio"]):not([type="checkbox"]) {
+	padding-left: 0.25rem;
+	padding-right: 0.25rem;
+}
+
+textarea {
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+}
+
+textarea, input:not([type="radio"]):not([type="checkbox"]) {
+	line-height: 1;
+}
+
+button {
+	font-weight: bold;
+}
+
+/* Regular tables */
+table.regular {
+	width: 100%;
+	line-height: 2;
+}
+
+table.regular thead tr, table.regular.horizontal tbody th {
+	background-image: linear-gradient(to bottom, hsl(0, 0%, 10%), hsl(0, 0%, 0%));
+	border: 1px solid hsl(0, 0%, 15%);
+	font-weight: bold;
+}
+
+table.regular tbody tr {
+	background-image: linear-gradient(to bottom, hsl(0, 0%, 20%), hsl(0, 0%, 15%));
+	border: 1px solid hsl(0, 0%, 30%);
+}
+
+table.regular tbody tr:nth-child(even) {
+	background-image: linear-gradient(to bottom, hsl(0, 0%, 12.5%), hsl(0, 0%, 7.5%));
+}
+
+table.regular td, table.regular th {
+	padding-left: 0.5rem;
+	padding-right: 0.5rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Login */
+.loading {
+	font-size: 1.5rem;
+}
+
+.login, .instructions {
+	padding: 2rem;
+	background-color: black;
+	border: 1px solid hsl(0, 0%, 15%);
+}
+
+.login ul, .login ol, .instructions ul, .instructions ol {
+	padding-left: 2rem;
+}
+
+.login li, .instructions li {
+	display: list-item;
+}
+
+.login ul li, .instructions ul li {
+	list-style-type: square;
+}
+
+.login code, .instructions code {
+	color: hsl(60, 100%, 50%);
+	font-style: normal;
+}
+
+.login var, .instructions var {
+	font-style: italic;
+}
+
+.login a, .instructions a {
+	color: hsl(200, 100%, 50%);
+}
+
+.login progress {
+	display: block;
+}
+
+/* Monitor */
+.monitor {
+	padding: 2rem;
+}
+
+.monitor #vessels input[type="text"], .monitor #vessels select {
+	width: 100%;
+}
+
+.monitor #vessels tr.inactive {
+	opacity: 0.25;
+}
+
+.no-vessels {
+	text-align: center;
+}
+
+	.no-vessels a {
+		color: hsl(200, 100%, 50%)
+	}
+
+.error {
+	background-image: linear-gradient(to bottom, hsl(0, 100%, 40%), hsl(0, 100%, 25%)) !important;
+	border: 1px solid hsl(0, 100%, 40%);
+	font-weight: bold;
+}
+
+#files .create-file button:before {
+	content: "\f067\20";
+	font-family: FontAwesome;
+	font-weight: normal;
+}
+
+#files section.file {
+	padding: 1rem;
+	border: 1px solid hsl(0, 0%, 30%);
+}
+
+#files .editor {
+	flex: 1;
+}
+
+/* Logs */
+.log .contents {
+	background-color: black;
+	color: white;
+}

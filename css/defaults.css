@@ -1,0 +1,57 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	text-align: inherit;
+	font-weight: inherit;
+	font-size: 1em;
+	line-height: inherit;
+}
+
+iframe {
+	display: block;
+	width: 100%;
+	border: 0;
+}
+
+button, input, select {
+	font-family: inherit;
+}
+
+button,
+input[type="button"],
+input[type="radio"],
+input[type="checkbox"],
+select {
+	cursor: pointer;
+}
+
+textarea,
+input
+:not([type="button"])
+:not([type="file"])
+:not([type="radio"])
+:not([type="checkbox"]),
+progress {
+	width: 100%;
+}
+
+textarea, input.code {
+	/* http://code.stephenmorley.org/html-and-css/fixing-browsers-broken-monospace-font-handling/ */
+	font-family: monospace, monospace;
+}
+
+li {
+	display: block;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+button.reset {
+	border: 0;
+	background: none;
+	color: inherit;
+}
