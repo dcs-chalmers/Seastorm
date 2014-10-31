@@ -322,6 +322,7 @@ seastorm.ProgramController = function(
 			}
 			else {
 				var program = Program();
+				program.title = vessel.ip;
 				program.vessel = vessel;
 				program.file = null;
 			}
